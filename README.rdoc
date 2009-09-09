@@ -1,0 +1,7 @@
+= CHINGU
+http://github.com/ippa/triangle_wars/tree/master
+
+*** NOT DONE YET.. so DONT PLAY IT ;)***
+
+== DESCRIPTION
+A topdown shoot 'em up built with Ruby / Chingu / Gosu. Ruby 1.9+ is recommended.
