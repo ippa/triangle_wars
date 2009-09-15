@@ -1,22 +1,11 @@
 #!/usr/bin/env ruby
 
-#require File.join("..", "..", "lib", "chingu.rb")
 require 'rubygems'
-require 'chingu'
-
-require File.join("src", "menu_state")
-require File.join("src", "level_state")
-require File.join("src", "pause_state")
-require File.join("src", "game_over_state")
-
-require File.join("src", "my_game_object")
-require File.join("src", "enemy")
-require File.join("src", "player")
-require File.join("src", "power_up")
-
+require File.join("..", "chingu", "lib", "chingu.rb") #require 'chingu'
 require 'gosu'
 include Gosu
 include Chingu
+require_all "src"
 
 #
 # When a missing method is called on an array...
