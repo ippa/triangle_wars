@@ -9,8 +9,9 @@ class MyGameObject < Chingu::GameObject
     super
     @status = :default
   end
+  
   def damage(punch)
-    @health = 0 if @health.nil? ## ugly fix for something :/
+    @health ||= 0
       
     @health -= punch
     if @health <= 0
@@ -20,13 +21,8 @@ class MyGameObject < Chingu::GameObject
     self
   end
   
-  def collides_with?(object)
-    distance(self.x, self.y, object.x, object.y) < self.radius
-  end
-		
   def die!
     @lives -= 1 if defined?(@lives)
-    @status = :dead
     self
   end
 

@@ -1,7 +1,7 @@
 class Pause < Chingu::GameState
   def initialize(options)
     super
-    @title = Chingu::Text.new(:text=>"PAUSED ('P' to un-pause)", :x=>150, :y=>200, :size=>40, :color => Color.new(0xFFFFFF00))
+    @title = Chingu::Text.create(:text=>"PAUSED ('P' to un-pause)", :x=>150, :y=>200, :size=>40, :color => Color.new(0xFFFFFF00))
     self.input = { :p => :un_pause }
   end
 

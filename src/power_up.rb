@@ -1,5 +1,6 @@
 class PowerUp < Chingu::GameObject
   attr_reader :type, :radius, :status
+  has_trait :collision_detection
   
   def initialize(options)
     super
@@ -27,18 +28,22 @@ class PowerUp < Chingu::GameObject
   def self.new_from(object)
     power_ups = ["plasma_up", "1up", "laser_up", "rocket_up", "bigbomb", "autofire"]
     type = power_ups[rand(power_ups.size)]
-    PowerUp.new(:type => type, :x => object.x, :y => object.y,
-                :speed_x => object.speed_x, :speed_y => object.speed_y)
+    PowerUp.create( :type => type, :x => object.x, :y => object.y,
+                    :speed_x => object.speed_x, :speed_y => object.speed_y)
   end
+
+  # Trait "collision_detection" use this method in its iterations
+  def collides?(object2); radius_collision?(object2); end
 
   def die!
     @status = :dead
     destroy!
-    ##$window.remove_game_object(self)
   end
+  
   def alive?
     @status == :default
   end
+  
   def dead?
     @status == :dead
   end

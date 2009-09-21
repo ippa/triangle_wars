@@ -1,19 +1,19 @@
 class Menu < Chingu::GameState
-  def initialize(options)
+  def initialize(options = {})
     super   
     Text.size = 60
     x = 220
     @menu_items = []
-    @menu_items << Text.new(:text => "START GAME", :x => x, :y => 200, :id => :start)
-    @menu_items << Text.new(:text => "HELP", :x => x, :y => 300, :id => :help)
-    @menu_items << Text.new(:text => "QUIT", :x => x, :y => 400, :id => :quit)    
+    @menu_items << Text.create(:text => "START GAME", :x => x, :y => 200, :id => :start)
+    @menu_items << Text.create(:text => "HELP", :x => x, :y => 300, :id => :help)
+    @menu_items << Text.create(:text => "QUIT", :x => x, :y => 400, :id => :quit)    
     
     @red = Color.new(200,255,255,255)
     @red2 = Color.new(255,255,0,0)
     @white = Color.new(255,255,255)
     
-    @logo = GameObject.new(:x => $window.width/2, :y => 70, :image => "triangle_wars.png", :zorder => 10)
-    @background = GameObject.new(:image => "hubble_deep_field.png", :zorder => 0, :x => $window.width/2, :y => $window.height/2)
+    @logo = GameObject.create(:x => $window.width/2, :y => 70, :image => "triangle_wars.png", :zorder => 10)
+    @background = GameObject.create(:image => "hubble_deep_field.png", :zorder => 0, :x => $window.width/2, :y => $window.height/2)
     @background.color = Color.new(150,255,255,255)
     
     @zoom_seed = Math::PI
@@ -25,7 +25,6 @@ class Menu < Chingu::GameState
   
   def setup
     @menu_index = 0
-    #Gosu::Song.new($window, "media/triangle_wars_intro.ogg").play
     Song["triangle_wars_intro.ogg"].play(true)
   end  
   

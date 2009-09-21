@@ -1,11 +1,11 @@
 class Level < Chingu::GameState
-  def initialize(options)
+  def initialize(options = {})
     super
-		@player = Player.new({})
+		@player = Player.create({})
     @level = options[:level] || 1
     self.input = { :p => Pause, :f1 => :power_up }
 
-    @score = Text.new(:text => "Score: #{@player.score}  Lives: #{@player.lives}", :x => 10, :y => 4, :size => 30)
+    @score = Text.create(:text => "Score: #{@player.score}  Lives: #{@player.lives}", :x => 10, :y => 4, :size => 30)
   end
   
   def setup
@@ -16,10 +16,15 @@ class Level < Chingu::GameState
     
     @player.x = $window.width/2
     @player.y = $window.height/2
+    
+    30.times { |nr| 
+      x, y = random_entry_point
+      Enemy.create(:x => x, :y => y, :type => rand(2)) 
+    }
   end
   
   def power_up
-    #PowerUp.new(:type=>"plasma_up", :x=>50, :y=>50, :speed_x=>3, :speed_y=>3)
+    #PowerUp.create(:type=>"plasma_up", :x=>50, :y=>50, :speed_x=>3, :speed_y=>3)
     @player.laser += 1
   end
                 
@@ -44,18 +49,13 @@ class Level < Chingu::GameState
     
     if $window.ticks % 30 == 0
       x, y = random_entry_point
-      Enemy.new(:x => x, :y => y, :level => options[:level], :type => rand(2))
+      Enemy.create(:x => x, :y => y, :level => options[:level], :type => rand(2))
     end
     
-    @bullets = game_objects_of_class(Bullet)
-    
-    PowerUp.all.each do |power_up|
-      if power_up.alive? && @player.collides_with?(power_up)
-        @player.take(power_up)
-        power_up.die!
-      end
+    @player.each_collision(PowerUp) do |player, power_up|
+      player.take(power_up)
+      power_up.die!
     end
-    
     
     #
     # Loop thru all enemies, aim them at player and do collidestuff
@@ -65,27 +65,27 @@ class Level < Chingu::GameState
       enemy.aim_at(@player.x, @player.y)
       
       # Collide enemies with our bullets, damage enemies and kill bullets
-      [enemy].collide_by_radius(@bullets) do |enemy, bullet|
+      enemy.each_collision(Bullet) do |enemy, bullet|        
         enemy.damage(bullet.health)
         bullet.die!
-        
-        #power_up_from(enemy)  if enemy.dying?
         PowerUp.new_from(enemy)  if enemy.dying?
       end
 
       # Collide all enemies with player, damage player and kill enemy
-      [enemy].collide_by_radius([@player]) do |enemy, player|
-        player.damage(enemy.health)        
+      if enemy.collides?(@player)
+        @player.damage(enemy.health)        
         enemy.die!
       end
-      
     end
       
     #
     # Do some garbagecollection every 10 click, remove all dead objects and objcts outside screen.
     #
     #if $window.ticks % 10 == 0
-    @game_objects.reject! { |object| (object.respond_to?(:status) && object.dead?) || object.outside_window? }
+    
+    #@game_objects.reject! { |object| (object.respond_to?(:status) && object.dead?) || object.outside_window? }
+    @game_objects.destroy_if { |object| (object.respond_to?(:status) && object.dead?) || object.outside_window? }
+    
     #end
     #@game_objects.reject! { |object| object.outside_window? }
 	end

@@ -1,5 +1,6 @@
 class Player < MyGameObject
   has_trait :input
+  has_trait :collision_detection
   attr_accessor :speed, :score, :lives, :plasma
 
   def initialize(options)
@@ -24,6 +25,9 @@ class Player < MyGameObject
     @laser = 1
     @autofire = 0
     @current_weapon = :plasma
+    
+    ### AUTOFIRE!
+    self.input[:holding_space] = :fire
   end
   
 	def turn_left
@@ -70,17 +74,18 @@ class Player < MyGameObject
     if @current_weapon == :plasma
       start_offset = (@plasma-1) * 5
       @plasma.times do |nr|
-        Bullet.new(:x => @x, :y => @y, :angle => @angle - start_offset + (nr*10), :type => :plasma)
+        Bullet.create(:x => @x, :y => @y, :angle => @angle - start_offset + (nr*10), :type => :plasma)
       end
     elsif @current_weapon == :laser
       @plasma.times do |nr|
-        Bullet.new(:x => @x, :y => @y, :angle => @angle, :type => :laser)
+        Bullet.create(:x => @x, :y => @y, :angle => @angle, :type => :laser)
       end
     end
-    
-    
   end
 	
+  # Trait "collision_detection" use this method in its iterations
+  def collides?(object2); radius_collision?(object2); end
+  
 	def distance_to(object)
 		distance(self.x, self.y, object.x, object.y)
 	end
@@ -92,18 +97,10 @@ class Player < MyGameObject
   end
 end
 
-class Weapon
-  def initialize(weapon_class, power = 1)
-    @weapon_class = weapon_class
-    @power = power
-  end
-  
-  def fire
-    #@weapon_class.new
-  end
-end
-
 class Bullet < MyGameObject
+  has_trait :collision_detection
+  attr_reader :radius
+  
   def initialize(options)
     super
     @range = options[:range] || 40
@@ -114,17 +111,19 @@ class Bullet < MyGameObject
     @color = Color.new(255,255,255,255)
     @mode = :additive
     
+    @radius ||= (@image.height + @image.width) / 2 * 0.80
     Sample["plasma.wav"].play(0.1)
   end
+  
+  # Trait "collision_detection" use this method in its iterations
+  def collides?(object2); radius_collision?(object2); end
   
   def move
 		@x += @speed_x
 		@y += @speed_y
   end
   
-  def update(time = 1)
-    #base = time/100.0
-    
+  def update
     if @type == :laser
       @color.alpha =  ($window.ticks%2 == 0) ? 255 : 0
     end

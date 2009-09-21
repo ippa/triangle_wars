@@ -1,5 +1,7 @@
 class EnemyTemplate < MyGameObject
-  attr_reader :speed_x, :speed_y
+  attr_reader :speed_x, :speed_y, :radius
+  has_trait :collision_detection
+  
 	#attr_accessor :prev_x, :prev_y, :aim_x, :aim_y
     
 	def initialize(options = {})
@@ -25,6 +27,9 @@ class EnemyTemplate < MyGameObject
     @radius = (@width + @height) / 2 * 0.50
     @original_color = @color
   end
+
+  # Trait "collision_detection" use this method in its iterations
+  def collides?(object2); radius_collision?(object2); end
 
 	def aim_at(x, y)
     if @status != :dying
