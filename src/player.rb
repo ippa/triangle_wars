@@ -20,7 +20,7 @@ class Player < MyGameObject
     @angle_step = 3
     
     # weapons
-    @plasma = 1
+    @plasma = 5
     @rocket = 0
     @laser = 1
     @autofire = 0
@@ -28,6 +28,7 @@ class Player < MyGameObject
     
     ### AUTOFIRE!
     self.input[:holding_space] = :fire
+    @dt = 0
   end
   
 	def turn_left
@@ -71,6 +72,10 @@ class Player < MyGameObject
     # 3: start_offset: 10
     # 4: start_offset: 15        -15, -5, 5, 15
     #
+    @dt += $window.dt
+    return if @dt < 100
+    @dt = 0
+    
     if @current_weapon == :plasma
       start_offset = (@plasma-1) * 5
       @plasma.times do |nr|

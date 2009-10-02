@@ -15,8 +15,8 @@ class Game < Chingu::Window
     super(1024, 768)
     Gosu::Image.autoload_dirs << File.join(@root, "media", "backgrounds")
     self.input = { :escape => :close }
-    #push_game_state(Level)
-    push_game_state(Menu)
+    push_game_state(Level)
+    #push_game_state(Menu)
     #transitional_game_state(Chingu::GameStates::FadeTo)
 	end
 

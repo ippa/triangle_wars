@@ -1,7 +1,7 @@
 class Level < Chingu::GameState
   def initialize(options = {})
     super
-		@player = Player.create({})
+		@player = Player.create
     @level = options[:level] || 1
     self.input = { :p => Pause, :f1 => :power_up }
 
@@ -13,6 +13,7 @@ class Level < Chingu::GameState
     if options[:level] == 1
       @player.setup
     end
+    @player.setup
     
     @player.x = $window.width/2
     @player.y = $window.height/2
@@ -47,16 +48,17 @@ class Level < Chingu::GameState
     
     @score.text = "Score: #{@player.score}  Lives: #{@player.lives}"
     
-    if $window.ticks % 30 == 0
+    if $window.ticks % 10 == 0
       x, y = random_entry_point
       Enemy.create(:x => x, :y => y, :level => options[:level], :type => rand(2))
     end
     
-    @player.each_collision(PowerUp) do |player, power_up|
+    @player.each_radius_collision(PowerUp) do |player, power_up|
       player.take(power_up)
       power_up.die!
     end
     
+    if $window.ticks % 2 == 0
     #
     # Loop thru all enemies, aim them at player and do collidestuff
     #
@@ -65,10 +67,10 @@ class Level < Chingu::GameState
       enemy.aim_at(@player.x, @player.y)
       
       # Collide enemies with our bullets, damage enemies and kill bullets
-      enemy.each_collision(Bullet) do |enemy, bullet|        
+      enemy.each_radius_collision(Bullet) do |enemy, bullet|        
         enemy.damage(bullet.health)
         bullet.die!
-        PowerUp.new_from(enemy)  if enemy.dying?
+        #PowerUp.new_from(enemy)  if enemy.dying?
       end
 
       # Collide all enemies with player, damage player and kill enemy
@@ -77,17 +79,13 @@ class Level < Chingu::GameState
         enemy.die!
       end
     end
+    end
       
     #
     # Do some garbagecollection every 10 click, remove all dead objects and objcts outside screen.
     #
-    #if $window.ticks % 10 == 0
-    
-    #@game_objects.reject! { |object| (object.respond_to?(:status) && object.dead?) || object.outside_window? }
-    @game_objects.destroy_if { |object| (object.respond_to?(:status) && object.dead?) || object.outside_window? }
-    
-    #end
-    #@game_objects.reject! { |object| object.outside_window? }
+    #if $window.ticks % 10 == 0   
+    Bullet.destroy_if { |object| object.outside_window? }    
 	end
 	
 	def draw

@@ -1,9 +1,7 @@
 class EnemyTemplate < MyGameObject
   attr_reader :speed_x, :speed_y, :radius
-  has_trait :collision_detection
+  has_trait :collision_detection, :timer
   
-	#attr_accessor :prev_x, :prev_y, :aim_x, :aim_y
-    
 	def initialize(options = {})
     super
     @image = Image["enemy.png"]
@@ -26,62 +24,55 @@ class EnemyTemplate < MyGameObject
     
     @radius = (@width + @height) / 2 * 0.50
     @original_color = @color
+    @white = Gosu::Color.new(255,255,255,255)
   end
 
   # Trait "collision_detection" use this method in its iterations
   def collides?(object2); radius_collision?(object2); end
 
 	def aim_at(x, y)
-    if @status != :dying
-      @aim_x, @aim_y = x, y
-      @angle = Math.atan2(@aim_y - @y, @aim_x - @x).to_f * @rad_to_deg
-      @angle = 90 + @angle
+    return  if @status == :dead
+    
+    @aim_x, @aim_y = x, y
+    @angle = Math.atan2(@aim_y - @y, @aim_x - @x).to_f * @rad_to_deg
+    @angle = 90 + @angle
       
-      @acceleration_y = (@y - @aim_y < 0) ? @reaction : -@reaction
-      @acceleration_x = (@x - @aim_x < 0) ? @reaction : -@reaction
-    end
+    @acceleration_y = (@y - @aim_y < 0) ? @reaction : -@reaction
+    @acceleration_x = (@x - @aim_x < 0) ? @reaction : -@reaction
+    
 		self
 	end
   
   def damage(punch)
+    return  if @status == :dead
+    
     super
-    if @status != :dying
-      Sound["hit3.wav"].play(0.1, 0.3 + rand(10)/20.to_f)
-      @color = Gosu::Color.new(255,255,255,255)
-      @keep_color_for = $window.ticks + 5
-    end
+    Sound["hit3.wav"].play(0.1, 0.3 + rand(10)/20.to_f)
+    during(50) { @color = @white }.then { @color = @original_color }
   end
     
 	def die!
     Sound["explosion.wav"].play(0.1, 1.0 + rand(0.5))
     @image = Image["enemy_dying.png"]
-    @status = :dying
-    @color = @original_color
-    @color.alpha = 100
+    @status = :dead
+    
+    @color.alpha = 150
+    during(500) do
+      @factor_x += 0.3
+      @factor_y -= 0.05
+      @color.alpha -= 10  if @color.alpha > 10
+    end.then { destroy! }
   end
   
 	def update
-    if @status == :dying
-      @factor_x += 0.4
-      @factor_y -= 0.2    if @factor_y > 0.2
-      @color.alpha -= 10  if @color.alpha > 10
-    else
-      @speed_y += @acceleration_y		if	(@speed_y + @acceleration_y).abs < @max_speed
-      @acceleration_y = 0	if @speed_y == 0
+    return  if @status == :dead
+    
+    @speed_y += @acceleration_y		if	(@speed_y + @acceleration_y).abs < @max_speed
+    @acceleration_y = 0	if @speed_y == 0
 
-      @speed_x += @acceleration_x		if	(@speed_x + @acceleration_x).abs < @max_speed
-      @acceleration_x = 0	if @speed_x == 0
-      move
-    end
-    
-    if @factor_x > 3
-      @status = :dead
-      $window.remove_game_object(self)
-    end
-    
-    @color = @original_color  if @color != @original_color && $window.ticks > @keep_color_for
-    
-		self
+    @speed_x += @acceleration_x		if	(@speed_x + @acceleration_x).abs < @max_speed
+    @acceleration_x = 0	if @speed_x == 0
+    move
 	end	
   
   def move
@@ -112,7 +103,7 @@ class Enemy < EnemyTemplate
         @height = 60
         @reaction = 0.02
         @punch = 80
-        @health = 80
+        @health = 200
         @max_speed = 10
         @color = Gosu::Color.new(255,255,255,0)
     end
