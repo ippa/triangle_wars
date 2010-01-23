@@ -1,7 +1,8 @@
 class Player < MyGameObject
   has_trait :input
   has_trait :collision_detection
-  attr_accessor :speed, :score, :lives, :plasma
+  #has_trait :bounding_circle, :debug => true
+  attr_accessor :speed, :score, :lives, :plasma, :radius
 
   def initialize(options)
     super
@@ -29,6 +30,8 @@ class Player < MyGameObject
     ### AUTOFIRE!
     self.input[:holding_space] = :fire
     @dt = 0
+    
+    #cache_bounding_circle
   end
   
 	def turn_left

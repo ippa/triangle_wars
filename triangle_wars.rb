@@ -1,9 +1,12 @@
-#!/usr/bin/env ruby
+   #!/usr/bin/env ruby
 
 require 'rubygems'
 
-#require 'chingu'
-require File.join("..", "chingu", "lib", "chingu.rb") 
+begin
+  require '../chingu/lib/chingu'
+rescue LoadError
+  require 'chingu'
+end
 
 require 'gosu'
 include Gosu

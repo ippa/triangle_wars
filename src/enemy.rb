@@ -1,6 +1,7 @@
 class EnemyTemplate < MyGameObject
   attr_reader :speed_x, :speed_y, :radius
-  has_trait :collision_detection, :timer
+  has_traits :collision_detection, :timer
+  #has_trait :bounding_circle, :debug => true
   
 	def initialize(options = {})
     super
@@ -15,6 +16,7 @@ class EnemyTemplate < MyGameObject
 		
     @keep_color_for = 0	
 		@rad_to_deg = 180 / Math::PI
+    #cache_bounding_circle
   end
   
   def setup
@@ -28,7 +30,7 @@ class EnemyTemplate < MyGameObject
   end
 
   # Trait "collision_detection" use this method in its iterations
-  def collides?(object2); radius_collision?(object2); end
+  def collides?(object2); bounding_circle_collision?(object2); end
 
 	def aim_at(x, y)
     return  if @status == :dead

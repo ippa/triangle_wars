@@ -1,7 +1,7 @@
 class Level < Chingu::GameState
   def initialize(options = {})
     super
-		@player = Player.create
+		@player = Player.create({})
     @level = options[:level] || 1
     self.input = { :p => Pause, :f1 => :power_up }
 
@@ -53,7 +53,7 @@ class Level < Chingu::GameState
       Enemy.create(:x => x, :y => y, :level => options[:level], :type => rand(2))
     end
     
-    @player.each_radius_collision(PowerUp) do |player, power_up|
+    @player.each_collision(PowerUp) do |player, power_up|
       player.take(power_up)
       power_up.die!
     end
@@ -67,7 +67,7 @@ class Level < Chingu::GameState
       enemy.aim_at(@player.x, @player.y)
       
       # Collide enemies with our bullets, damage enemies and kill bullets
-      enemy.each_radius_collision(Bullet) do |enemy, bullet|        
+      enemy.each_collision(Bullet) do |enemy, bullet|        
         enemy.damage(bullet.health)
         bullet.die!
         #PowerUp.new_from(enemy)  if enemy.dying?
